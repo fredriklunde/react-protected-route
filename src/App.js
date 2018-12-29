@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import {
   Route,
   Link,
+  Redirect,
   BrowserRouter as Router,
 } from 'react-router-dom';
 
@@ -13,8 +14,52 @@ const Private = () => (
   <div> This is a private page </div>
 );
 
-const Login = () => (
-  <div> Login Page <button>login</button> </div>
+class Login extends React.Component {
+  state = {
+    redirectToPreviousRoute: false
+  };
+
+  login = () => {
+    AuthService.authenticate(() => {
+      this.setState({ redirectToPreviousRoute: true });
+    });
+  };
+
+  render() {
+    const { from } = this.props.location.state || { from: { pathname: "/" } };
+    const { redirectToPreviousRoute } = this.state;
+
+    if (redirectToPreviousRoute) {
+      return <Redirect to={from} />;
+    }
+
+    return (
+      <div>
+        <p>You must log in to view the page at {from.pathname}</p>
+        <button onClick={this.login}>Log in</button>
+      </div>
+    );
+  }
+}
+
+const AuthService = {
+  isAuthenticated: false,
+  authenticate(cb) {
+    this.isAuthenticated = true
+    setTimeout(cb, 100)
+  },
+  logout(cb) {
+    this.isAuthenticated = false
+    setTimeout(cb, 100)
+  }
+}
+
+const SecretRoute = ({ component: Component, ...rest }) => (
+  <Route {...rest} render={(props) => (
+    AuthService.isAuthenticated === true
+      ? <Component {...props} />
+      : <Redirect to='/login' />
+  )} />
 );
 
 
@@ -32,7 +77,8 @@ class App extends Component {
           <hr/>
 
           <Route path='/public' component={Public} />
-          <Route path='/private' component={Private} />
+          <Route path='/login' component={Login} />
+          <SecretRoute path='/private' component={Private} />
         </div>
       </Router>
     );
