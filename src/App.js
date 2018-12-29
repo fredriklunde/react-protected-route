@@ -3,6 +3,7 @@ import {
   Route,
   Link,
   Redirect,
+  withRouter,
   BrowserRouter as Router,
 } from 'react-router-dom';
 
@@ -54,11 +55,26 @@ const AuthService = {
   }
 }
 
+const AuthStatus = withRouter(({ history }) => (
+  AuthService.isAuthenticated ? (
+    <p>
+      Welcome! <button onClick={() => {
+        AuthService.logout(() => history.push('/'))
+      }}>Sign out</button>
+    </p>
+  ) : (
+    <p>You are not logged in.</p>
+  )
+));
+
 const SecretRoute = ({ component: Component, ...rest }) => (
   <Route {...rest} render={(props) => (
     AuthService.isAuthenticated === true
       ? <Component {...props} />
-      : <Redirect to='/login' />
+      : <Redirect to={{
+          pathname: '/login',
+          state: { from: props.location }
+        }} />
   )} />
 );
 
@@ -69,6 +85,7 @@ class App extends Component {
     return (
       <Router>
         <div style={{width: 1000, margin: '0 auto'}}>
+        <AuthStatus />
           <ul>
             <li><Link to='/public'> Public </Link></li>
             <li><Link to='/private'> Private </Link></li>
