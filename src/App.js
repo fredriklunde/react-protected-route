@@ -1,28 +1,41 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import {
+  Route,
+  Link,
+  BrowserRouter as Router,
+} from 'react-router-dom';
+
+const Public = () => (
+  <div> This is a public page </div>
+);
+
+const Private = () => (
+  <div> This is a private page </div>
+);
+
+const Login = () => (
+  <div> Login Page <button>login</button> </div>
+);
+
+
 
 class App extends Component {
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
+      <Router>
+        <div style={{width: 1000, margin: '0 auto'}}>
+          <ul>
+            <li><Link to='/public'> Public </Link></li>
+            <li><Link to='/private'> Private </Link></li>
+          </ul>
+
+          <hr/>
+
+          <Route path='/public' component={Public} />
+          <Route path='/private' component={Private} />
+        </div>
+      </Router>
     );
   }
 }
-
 export default App;
